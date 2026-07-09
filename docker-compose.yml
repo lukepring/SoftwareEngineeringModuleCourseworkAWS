@@ -9,7 +9,8 @@ services:
     ports:
       - "${WEB_PORT:-3000}:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   db:
     image: mysql:8.0
     restart: always
@@ -20,6 +21,12 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     restart: always
