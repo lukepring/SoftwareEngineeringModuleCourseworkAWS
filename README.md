@@ -49,19 +49,40 @@ Tasks are organized through a GitHub Project Kanban board, and development is ca
 
 1. Clone the repository  
 2. Ensure Docker is installed and operational  
-3. Execute the Docker compose command  
-4. Access the web application through a browser at the designated port.
+3. Copy the environment template:
+   ```bash
+   cp .env.example .env
+   ```
+4. Start with a clean rebuild:
+   ```bash
+   docker-compose down -v && docker-compose up -d --build
+   ```
+5. Access:
+   - Web app: `http://localhost:3000`
+   - phpMyAdmin: `http://localhost:8081`
 
 ### Environment Setup
 
-The PourScore AI feature requires a Google Gemini API key.
+`.env.example` includes sane defaults for local Docker development.
 
-1. Create a `.env` file in the root directory.
-2. Get a free API key from [aistudio.google.com](https://aistudio.google.com/).
-3. Add the key to your `.env` file:
-   ```env
-   GOOGLE_API_KEY=your_api_key_here
-   ```
+Run mode A - Docker (recommended):  
+- Use `docker-compose up` / `docker-compose up -d`  
+- Keep `DB_HOST=db` and `DB_PORT=3306` in `.env`
+
+Run mode B - Host Node + Docker DB:  
+- Keep MySQL running in Docker Compose  
+- If you run Node on your host (`npm start`), set:
+  ```env
+  DB_HOST=127.0.0.1
+  DB_PORT=3308
+  ```
+  (`3308` is the published MySQL port from Compose.)
+
+The PourScore AI feature requires a Google Gemini API key.  
+Get a free API key from [aistudio.google.com](https://aistudio.google.com/) and set:
+```env
+GOOGLE_API_KEY=your_api_key_here
+```
 
 ### Troubleshooting
 
@@ -70,8 +91,7 @@ If you cloned the repository or updated the code, and your server is repeatedly 
 
 To fix this, you must destroy the old volume and rebuild your containers:
 ```bash
-docker-compose down -v
-docker-compose up -d --build
+docker-compose down -v && docker-compose up -d --build
 ```
 *(The `-v` flag is critical—it deletes the old persistent volume so the new dependencies can properly install).*
 
